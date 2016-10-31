@@ -1,12 +1,21 @@
 NAME=registrator
 VERSION=$(shell cat VERSION)
 DEV_RUN_OPTS ?= consul:
+REPO = 496584544324.dkr.ecr.us-east-1.amazonaws.com
 
-dev:
-	docker build -f Dockerfile.dev -t $(NAME):dev .
+# TODO: find a way to make our mods seem less arbitrary
+
+dev: build-dev
 	docker run --rm \
 		-v /var/run/docker.sock:/tmp/docker.sock \
-		$(NAME):dev /bin/registrator $(DEV_RUN_OPTS)
+		cbinsights/$(NAME):dev /bin/registrator $(DEV_RUN_OPTS)
+
+build-dev:
+	docker build -f Dockerfile.dev -t cbinsights/$(NAME):dev .
+
+publish-dev: build-dev
+	docker tag cbinsights/$(NAME):dev $(REPO)/cbinsights/$(NAME):dev
+	docker push $(REPO)/cbinsights/$(NAME):dev
 
 build:
 	mkdir -p build
